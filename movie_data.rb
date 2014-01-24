@@ -3,6 +3,8 @@
 # Version: 2014.1.24
 
 require "pathname"
+require "./movie"
+require "./user_rating"
 
 class MovieData
 
@@ -20,20 +22,20 @@ class MovieData
   end
 
   # returns a number (0 - 100) that indicates the popularity (higher numbers are more popular) of movie_id from movie_hash
-  def popularity(movie_id, movie_hash)
+  def popularity(movie_id, movie_hash = @training_movies)
     max_sum_ratings = movie_hash.values.map { |movie| movie.sum_ratings }.max # determines max sum_ratings
     movie_hash[movie_id.to_i].sum_ratings * 100.0 / max_sum_ratings # calculates popularity and normalizes
   end
 
   # generates a list of all movie_id’s from movie_hash ordered by decreasing popularity
-  def popularity_list(movie_hash)
+  def popularity_list(movie_hash = @training_movies)
     movie_hash.values.sort_by { |movie| popularity(movie.movie_id, movie_hash) }.reverse.map(&:movie_id)
   end
 
   # generate a number (0 - 100) which indicates the similarity in movie preference between user1 and user2 from movie_hash
   # (higher numbers indicate greater similarity); calculated from ratio of sum of rating difference on common movies
   # to max difference, normalized
-  def similarity(user1, user2, movie_hash)
+  def similarity(user1, user2, movie_hash = @training_movies)
     common_movies = movie_hash.values.select { |movie| movie.user_rated?(user1.to_i) && movie.user_rated?(user2.to_i) }
     return 0.0 if common_movies.empty? # Common case
     rating_sum = common_movies.inject(0) { |sum, movie| sum + (movie.user_rating(user1.to_i) - movie.user_rating(user2.to_i)).abs }
@@ -43,7 +45,7 @@ class MovieData
 
   # returns an array list of the top number_of_users (default = 5) from movie_hash whose tastes are most similar to the tastes of user u
   # with the most_similar users at the front of the array
-  def most_similar(u, number_of_users = 5, movie_hash)
+  def most_similar(u, number_of_users = 5, movie_hash = @training_movies)
     similarity_hash = other_users(u.to_i, movie_hash).inject({}) { |user_similarity, user_id| user_similarity.merge({user_id => similarity(u.to_i, user_id, movie_hash)}) }
     similarity_hash.sort_by { |user_similarity| user_similarity[1] }.reverse.take(number_of_users).map(&:first)
   end
@@ -60,9 +62,11 @@ class MovieData
     (sum_similar_ratings / count_similar_ratings).to_f.round(1)
   end
 
-  # returns the array of movies that user_id has watched
-  def movies(user_id, movie_hash)
-
+  # returns the array of movie_ids that user_id has watched
+  def movies(user_id, movie_hash = @training_movies)
+    movie_array = []
+    movie_hash.map { |movie| movie_array.map(&:movie_id) if movie.user_rated?(user_id) }
+    movie_array
   end
 
   # returns the array of users that have seen movie_id
