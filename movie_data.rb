@@ -22,11 +22,8 @@ class MovieData
   def load_data(path, movie_hash)
     File.open(path, "r") do |file|
       file.each do |line|
-        line_array = line.split("\t")
-        user_id = line_array[0].to_i
-        movie_id = line_array[1].to_i
-        rating = line_array[2].to_i
-        timestamp = line_array[3].to_i
+        line_array = line.split("\t").map(&:to_i)
+        user_id, movie_id, rating, timestamp = line_array
         movie_hash[movie_id] ||= Movie.new(movie_id)
         movie_hash[movie_id].add_rating(user_id, rating, timestamp)
       end
