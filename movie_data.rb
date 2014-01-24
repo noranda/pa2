@@ -2,10 +2,20 @@
 # Written by: Noranda Brown
 # Version: 2014.1.23
 
+require "pathname"
+
 class MovieData
 
-  def initialize
-    @movies = {}
+  def initialize(folder_name, set_pair = nil)
+    folder_path = Pathname.new(folder_name)
+    if set_pair.nil?
+      @training_path = folder_path.join("u.data")
+    else
+      @training_path = folder_path.join("#{set_pair}.base")
+      @test_path = folder_path.join("#{set_pair}.base")
+    end
+    @training_movies = {}
+    @test_movies = {}
   end
 
   # reads in data from the original ml-100k files and stores movie objects in a hash
