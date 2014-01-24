@@ -1,6 +1,6 @@
 # movie_data.rb
 # Written by: Noranda Brown
-# Version: 2014.1.18
+# Version: 2014.1.23
 
 class MovieData
 
@@ -56,53 +56,5 @@ class MovieData
   # list of all users except u
   def other_users(u)
     @movies.values.map(&:user_list).flatten.uniq - [u]
-  end
-end
-
-class Movie
-
-  attr_reader :movie_id
-
-  def initialize(movie_id)
-    @movie_id = movie_id
-    @user_ratings = []
-    @sum_ratings = nil
-  end
-
-  # adds a user_id, rating and timestamp to a movie
-  def add_rating(user_id, rating, timestamp)
-    @user_ratings << UserRating.new(user_id, rating, timestamp)
-    @sum_ratings = nil
-  end
-
-  # returns the sum of all ratings for a movie
-  def sum_ratings
-    @sum_ratings ||= @user_ratings.map(&:rating).inject(&:+).to_f
-  end
-
-  # returns true if user_id has rated a movie and false otherwise
-  def user_rated?(user_id)
-    @user_ratings.map(&:user_id).include?(user_id)
-  end
-
-  # returns the user rating from user_id for a movie
-  def user_rating(user_id)
-    @user_ratings.select { |user_rating| user_rating.user_id == user_id }.first.rating if user_rated?(user_id)
-  end
-
-  # returns a list of users that reviewed the movie
-  def user_list
-    @user_ratings.map(&:user_id)
-  end
-end
-
-class UserRating
-
-  attr_reader :user_id, :rating, :timestamp
-
-  def initialize(user_id, rating, timestamp)
-    @user_id = user_id
-    @rating = rating
-    @timestamp = timestamp
   end
 end
