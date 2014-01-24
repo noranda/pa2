@@ -33,38 +33,39 @@ class MovieData
     end
   end
 
-  # returns a number (0 - 100) that indicates the popularity (higher numbers are more popular)
-  def popularity(movie_id)
-    max_sum_ratings = @movies.values.map { |movie| movie.sum_ratings }.max # determines max sum_ratings
-    @movies[movie_id.to_i].sum_ratings * 100.0 / max_sum_ratings # calculates popularity and normalizes
+  # returns a number (0 - 100) that indicates the popularity (higher numbers are more popular) of movie_id from movie_hash
+  def popularity(movie_id, movie_hash)
+    max_sum_ratings = movie_hash.values.map { |movie| movie.sum_ratings }.max # determines max sum_ratings
+    movie_hash[movie_id.to_i].sum_ratings * 100.0 / max_sum_ratings # calculates popularity and normalizes
   end
 
-  # generates a list of all movie_id’s ordered by decreasing popularity
-  def popularity_list
-    @movies.values.sort_by { |movie| popularity(movie.movie_id) }.reverse.map(&:movie_id)
+  # generates a list of all movie_id’s from movie_hash ordered by decreasing popularity
+  def popularity_list(movie_hash)
+    movie_hash.values.sort_by { |movie| popularity(movie.movie_id, movie_hash) }.reverse.map(&:movie_id)
   end
 
-  # generate a number (0 - 100) which indicates the similarity in movie preference between
-  # user1 and user2 (higher numbers indicate greater similarity)
-  def similarity(user1, user2)
-    common_movies = @movies.values.select { |movie| movie.user_rated?(user1.to_i) && movie.user_rated?(user2.to_i) }
+  # generate a number (0 - 100) which indicates the similarity in movie preference between user1 and user2 from movie_hash
+  # (higher numbers indicate greater similarity); calculated from ratio of sum of rating difference on common movies
+  # to max difference, normalized
+  def similarity(user1, user2, movie_hash)
+    common_movies = movie_hash.values.select { |movie| movie.user_rated?(user1.to_i) && movie.user_rated?(user2.to_i) }
     return 0.0 if common_movies.empty? # Common case
     rating_sum = common_movies.inject(0) { |sum, movie| sum + (movie.user_rating(user1.to_i) - movie.user_rating(user2.to_i)).abs }
     max_rating_sum = 4 * common_movies.length
     100.0 - (rating_sum.to_f / max_rating_sum.to_f * 100.0)
   end
 
-  # returns an array list of the top number_of_users (default = 5) whose tastes are most similar to the tastes of user u
+  # returns an array list of the top number_of_users (default = 5) from movie_hash whose tastes are most similar to the tastes of user u
   # with the most_similar users at the front of the array
-  def most_similar(u, number_of_users = 5)
-    similarity_hash = other_users(u.to_i).inject({}) { |user_similarity, user_id| user_similarity.merge({user_id => similarity(u.to_i, user_id)}) }
+  def most_similar(u, number_of_users = 5, movie_hash)
+    similarity_hash = other_users(u.to_i, movie_hash).inject({}) { |user_similarity, user_id| user_similarity.merge({user_id => similarity(u.to_i, user_id, movie_hash)}) }
     similarity_hash.sort_by { |user_similarity| user_similarity[1] }.reverse.take(number_of_users).map(&:first)
   end
 
   private
 
-  # list of all users except u
-  def other_users(u)
-    @movies.values.map(&:user_list).flatten.uniq - [u]
+  # list of all users except u in movie_hash
+  def other_users(u, movie_hash)
+    movie_hash.values.map(&:user_list).flatten.uniq - [u]
   end
 end
