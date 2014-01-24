@@ -18,17 +18,17 @@ class MovieData
     @test_movies = {}
   end
 
-  # reads in data from the original ml-100k files and stores movie objects in a hash
-  def load_data
-    File.open("ml-100k/u.data", "r") do |file|
+  # reads in data from path and stores movie objects in the movie_hash
+  def load_data(path, movie_hash)
+    File.open(path, "r") do |file|
       file.each do |line|
         line_array = line.split("\t")
         user_id = line_array[0].to_i
         movie_id = line_array[1].to_i
         rating = line_array[2].to_i
         timestamp = line_array[3].to_i
-        @movies[movie_id] ||= Movie.new(movie_id)
-        @movies[movie_id].add_rating(user_id, rating, timestamp)
+        movie_hash[movie_id] ||= Movie.new(movie_id)
+        movie_hash[movie_id].add_rating(user_id, rating, timestamp)
       end
     end
   end
