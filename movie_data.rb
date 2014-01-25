@@ -2,12 +2,15 @@
 # Written by: Noranda Brown
 # Version: 2014.1.24
 
-require "pathname"
-require "./movie"
-require "./user_rating"
+require 'pathname'
+require './movie'
+require './user_rating'
+require './movie_test'
 
 class MovieData
 
+  # initializes MovieData object by loading data from specified folder_name/u.data or optionally from folder_name/set_pair.base
+  # and folder_name/set_pair.test, creating a @training_movies hash and an optional @test_movies hash of Movie objects
   def initialize(folder_name, set_pair = nil)
     @training_movies = {}
     @test_movies = {}
@@ -16,27 +19,27 @@ class MovieData
       training_path = folder_path.join("u.data")
     else
       training_path = folder_path.join("#{set_pair}.base")
-      load_data(folder_path.join("#{set_pair}.base"), @test_movies)
+      load_data(folder_path.join("#{set_pair}.test"), @test_movies)
     end
     load_data(training_path, @training_movies)
   end
 
-  # returns a number (0 - 100) that indicates the popularity (higher numbers are more popular) of movie_id from movie_hash
-  def popularity(movie_id, movie_hash = @training_movies)
-    max_sum_ratings = movie_hash.values.map { |movie| movie.sum_ratings }.max # determines max sum_ratings
-    movie_hash[movie_id.to_i].sum_ratings * 100.0 / max_sum_ratings # calculates popularity and normalizes
+  # returns a number (0 - 100) that indicates the popularity (higher numbers are more popular) of movie_id from training_movies
+  def popularity(movie_id)
+    max_sum_ratings = @training_movies.values.map { |movie| movie.sum_ratings }.max # determines max sum_ratings
+    @training_movies[movie_id.to_i].sum_ratings * 100.0 / max_sum_ratings # calculates popularity and normalizes
   end
 
-  # generates a list of all movie_id’s from movie_hash ordered by decreasing popularity
-  def popularity_list(movie_hash = @training_movies)
-    movie_hash.values.sort_by { |movie| popularity(movie.movie_id, movie_hash) }.reverse.map(&:movie_id)
+  # generates a list of all movie_id’s from training_movies ordered by decreasing popularity
+  def popularity_list
+    @training_movies.values.sort_by { |movie| popularity(movie.movie_id) }.reverse.map(&:movie_id)
   end
 
-  # generate a number (0 - 100) which indicates the similarity in movie preference between user1 and user2 from movie_hash
+  # generate a number (0 - 100) which indicates the similarity in movie preference between user1 and user2 from training_movies
   # (higher numbers indicate greater similarity); calculated from ratio of sum of rating difference on common movies
   # to max difference, normalized
-  def similarity(user1, user2, movie_hash = @training_movies)
-    common_movies = movie_hash.values.select { |movie| movie.user_rated?(user1.to_i) && movie.user_rated?(user2.to_i) }
+  def similarity(user1, user2)
+    common_movies = @training_movies.values.select { |movie| movie.user_rated?(user1.to_i) && movie.user_rated?(user2.to_i) }
     return 0.0 if common_movies.empty? # Common case
     rating_sum = common_movies.inject(0) { |sum, movie| sum + (movie.user_rating(user1.to_i) - movie.user_rating(user2.to_i)).abs }
     max_rating_sum = 4 * common_movies.length
@@ -56,6 +59,7 @@ class MovieData
   end
 
   # returns a floating point number between 1.0 and 5.0 as an estimate of what user_id would rate movie_id
+  # calculated by averaging the ratings of the user_id's 50 most-similar movies
   def predict(user_id, movie_id, movie_hash)
     sum_similar_ratings = most_similar(user_id, 50, movie_hash).inject(0) { |sum, user| sum + user_rating(user) }
     count_similar_ratings = most_similar(user_id, 50).inject(0, movie_hash) { |count, user| count + 1 if user_rated?(user) }
@@ -65,13 +69,17 @@ class MovieData
   # returns the array of movie_ids that user_id has watched
   def movies(user_id, movie_hash = @training_movies)
     movie_array = []
-    movie_hash.map { |movie| movie_array.map(&:movie_id) if movie.user_rated?(user_id) }
+    movie_hash.map { |movie| movie_array.push(:movie_id) if movie.user_rated?(user_id) }
     movie_array
   end
 
-  # returns the array of users that have seen movie_id
-  def viewers(movie_id)
-
+  # returns the array of users that have seen movie_id in movie_hash
+  def viewers(movie_id, movie_hash)
+    if movie_hash.key?(movie_id)
+      movie_hash[movie_id].user_list
+    else
+      []
+    end
   end
 
   # runs the z.predict method on the first k ratings in the test set and returns a MovieTest object containing the results.
