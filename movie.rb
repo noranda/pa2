@@ -28,9 +28,13 @@ class Movie
     @user_ratings.map(&:user_id).include?(user_id)
   end
 
-  # returns the user rating from user_id for a movie
+  # returns the user rating from user_id for a movie if the movie was rated by the user, else returns 0
   def user_rating(user_id)
-    @user_ratings.select { |user_rating| user_rating.user_id == user_id }.first.rating if user_rated?(user_id)
+    if user_rated?(user_id)
+      @user_ratings.select { |user_rating| user_rating.user_id == user_id }.first.rating
+    else
+      0
+    end
   end
 
   # returns a list of users that reviewed the movie
