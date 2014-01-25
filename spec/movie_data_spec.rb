@@ -7,7 +7,11 @@ require './movie_data'
 
 describe MovieData do
 
-  context "initialization" do
+  before do
+    allow_any_instance_of(Pathname).to receive(:directory?).and_return(true)
+  end
+
+  context "#initialize" do
     it "can be constructed" do
       allow(File).to receive(:open)
       expect { MovieData.new("test") }.to_not raise_error
@@ -22,6 +26,10 @@ describe MovieData do
       expect(File).to receive(:open).with(Pathname.new("test/foo.base"), "r")
       expect(File).to receive(:open).with(Pathname.new("test/foo.test"), "r")
       MovieData.new("test", :foo)
+    end
+
+    it "raises an error if the directory does not exist" do
+      expect { MovieData.new("test") }.to raise_error
     end
   end
 
@@ -38,6 +46,10 @@ describe MovieData do
 
     it "calculates popularity for the lowest rated movie" do
       expect(@md.popularity(2)).to eq(20)
+    end
+
+    it "raises an error if the movie does not exist" do
+      expect { md.popularity(3) }.to raise_error
     end
   end
 
@@ -76,6 +88,10 @@ describe MovieData do
     it "calculates the similarity between two users that are semi-common" do
       expect(@md.similarity(5, 6)).to eq(50)
     end
+
+    it "raises an error if at least one specified user does not exist" do
+      expect { @md.similarity(1, 7) }.to raise_error
+    end
   end
 
   context "#most_similar" do
@@ -88,7 +104,46 @@ describe MovieData do
     it "returns an array of the most similar users to a user" do
       expect(@md.most_similar(1)).to eq([2, 3, 4])
     end
+
+    it "returns an empty array if user does not exist" do
+      expect(@md.most_similar(5)).to eq([])
+    end
   end
 
-  
+  context "#rating" do
+    before do
+      @user_ratings = [[1, 1, 5, 100], [2, 2, 2, 100]]
+      allow(File).to receive(:open).and_yield(StringIO.new(@user_ratings.map { |array| array.join("\t") }.join("\n")))
+      @md = MovieData.new("test")
+    end
+
+    it "returns the rating for a movie a user rated" do
+      expect(@md.rating(1, 1)).to eq(5)
+    end
+
+    it "returns 0 for a movie a user did not rate" do
+      expect(@md.rating(2, 1)).to eq(0)
+    end
+
+    it "returns 0 if user doesn't exist" do
+      expect(@md.rating(3, 1)).to eq(0)
+    end
+  end
+
+  context "#predict" do
+    before do
+      @user_ratings = [[1, 1, 5, 100], [2, 1, 4, 100], [3, 1, 3, 100], [4, 1, 2, 100],
+                       [2, 2, 3, 100], [3, 2, 5, 100], [4, 2, 4, 100]]
+      allow(File).to receive(:open).and_yield(StringIO.new(@user_ratings.map { |array| array.join("\t") }.join("\n")))
+      @md = MovieData.new("test")
+    end
+
+    it "predicts the rating a user would give a movie he/she hasn't seen" do
+      expect(@md.predict(1, 2)).to eq(4.0)
+    end
+
+    it "returns an error if the user has no similar users that have seen the movie" do
+      expect(@md.predict(1, 3)).to eq(0.0)
+    end
+  end
 end

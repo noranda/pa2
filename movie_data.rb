@@ -15,19 +15,27 @@ class MovieData
     @training_movies = {}
     @test_movies = {}
     folder_path = Pathname.new(folder_name)
-    if set_pair.nil?
-      training_path = folder_path.join("u.data")
+    if folder_path.directory?
+      if set_pair.nil?
+        training_path = folder_path.join("u.data")
+      else
+        training_path = folder_path.join("#{set_pair}.base")
+        load_data(folder_path.join("#{set_pair}.test"), @test_movies)
+      end
+      load_data(training_path, @training_movies)
     else
-      training_path = folder_path.join("#{set_pair}.base")
-      load_data(folder_path.join("#{set_pair}.test"), @test_movies)
+      raise "Directory does not exist."
     end
-    load_data(training_path, @training_movies)
   end
 
   # returns a number (0 - 100) that indicates the popularity (higher numbers are more popular) of movie_id from training_movies
   def popularity(movie_id)
-    max_sum_ratings = @training_movies.values.map { |movie| movie.sum_ratings }.max # determines max sum_ratings
-    @training_movies[movie_id.to_i].sum_ratings * 100.0 / max_sum_ratings # calculates popularity and normalizes
+    if @training_movies.key?(movie_id)
+      max_sum_ratings = @training_movies.values.map { |movie| movie.sum_ratings }.max # determines max sum_ratings
+      @training_movies[movie_id.to_i].sum_ratings * 100.0 / max_sum_ratings # calculates popularity and normalizes
+    else
+      raise "Movie does not exist."
+    end
   end
 
   # generates a list of all movie_id’s from training_movies ordered by decreasing popularity
@@ -38,19 +46,27 @@ class MovieData
   # generate a number (0 - 100) which indicates the similarity in movie preference between user1 and user2 from training_movies
   # (higher numbers indicate greater similarity); calculated from ratio of sum of rating difference on common movies
   # to max difference, normalized
-  def similarity(user1, user2)
-    common_movies = @training_movies.values.select { |movie| movie.user_rated?(user1.to_i) && movie.user_rated?(user2.to_i) }
-    return 0.0 if common_movies.empty? # Common case
-    rating_sum = common_movies.inject(0) { |sum, movie| sum + (movie.user_rating(user1.to_i) - movie.user_rating(user2.to_i)).abs }
-    max_rating_sum = 4 * common_movies.length
-    100.0 - (rating_sum.to_f / max_rating_sum.to_f * 100.0)
+  def similarity(user1_id, user2_id)
+    if all_users.include?(user1_id) && all_users.include?(user2_id)
+      common_movies = @training_movies.values.select { |movie| movie.user_rated?(user1_id.to_i) && movie.user_rated?(user2_id.to_i) }
+      return 0.0 if common_movies.empty? # Common case
+      rating_sum = common_movies.inject(0) { |sum, movie| sum + (movie.user_rating(user1_id.to_i) - movie.user_rating(user2_id.to_i)).abs }
+      max_rating_sum = 4 * common_movies.length
+      100.0 - (rating_sum.to_f / max_rating_sum.to_f * 100.0)
+    else
+      raise "At least one user specified does not exist."
+    end
   end
 
   # returns an array list of the top number_of_users (default = 5) from training_movies whose tastes are most similar to the
   # tastes of user u with the most_similar users at the front of the array
-  def most_similar(u, number_of_users = 5)
-    similarity_hash = other_users(u.to_i).inject({}) { |user_similarity, user_id| user_similarity.merge({user_id => similarity(u.to_i, user_id)}) }
-    similarity_hash.sort_by { |user_similarity| user_similarity[1] }.reverse.take(number_of_users).map(&:first)
+  def most_similar(user_id, number_of_users = 5)
+    if all_users.include?(user_id)
+      similarity_hash = other_users(user_id.to_i).inject({}) { |user_similarity, user| user_similarity.merge({user => similarity(user_id.to_i, user)}) }
+      similarity_hash.sort_by { |user_similarity| user_similarity[1] }.reverse.take(number_of_users).map(&:first)
+    else
+      []
+    end
   end
 
   # returns the rating that user_id gave movie_id in the training set, and 0 if user_id did not rate movie_id
@@ -59,10 +75,11 @@ class MovieData
   end
 
   # returns a floating point number between 1.0 and 5.0 as an estimate of what user_id would rate movie_id
-  # calculated by averaging the ratings of the user_id's 50 most-similar movies
-  def predict(user_id, movie_id, movie_hash)
-    sum_similar_ratings = most_similar(user_id, 50, movie_hash).inject(0) { |sum, user| sum + user_rating(user) }
-    count_similar_ratings = most_similar(user_id, 50).inject(0, movie_hash) { |count, user| count + 1 if user_rated?(user) }
+  # calculated by averaging the ratings of the user_id's 50 most-similar users
+  def predict(user_id, movie_id)
+    #if most_similar(user_id) ==
+    sum_similar_ratings = most_similar(user_id, 50).inject(0) { |sum, user| sum + @training_movies[movie_id].user_rating(user) }
+    count_similar_ratings = most_similar(user_id, 50).inject(0) { |count, user| count + 1 if @training_movies[movie_id].user_rated?(user) }
     (sum_similar_ratings / count_similar_ratings).to_f.round(1)
   end
 
@@ -102,8 +119,13 @@ class MovieData
     end
   end
 
+  # list of all users in training_movies
+    def all_users
+      @training_movies.values.map(&:user_list).flatten.uniq
+    end
+
   # list of all users except u in training_movies
   def other_users(u)
-    @training_movies.values.map(&:user_list).flatten.uniq - [u]
+    all_users - [u]
   end
 end
