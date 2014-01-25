@@ -88,7 +88,7 @@ class MovieData
         sum + @training_movies[movie_id].user_rating(user)
       end
       count_similar_ratings = most_similar(user_id.to_i, 50).map do |user|
-        @training_movies[movie_id].user_rated?(user).select { |rated| rated }.size
+        @training_movies[movie_id].user_rated?(user)
       end.select { |rated| rated }.size
       return 1.0 if count_similar_ratings == 0 # no similar users have watched the movie
       (sum_similar_ratings / count_similar_ratings).to_f.round(1)
