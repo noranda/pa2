@@ -47,7 +47,9 @@ class MovieData
     if all_users.include?(user1_id.to_i) && all_users.include?(user2_id.to_i)
       user_common_movies = common_movies(user1_id.to_i, user2_id.to_i)
       return 0.0 if user_common_movies.empty? # most common case
-      rating_sum = user_common_movies.inject(0) { |sum, movie| sum + (movie.user_rating(user1_id.to_i) - movie.user_rating(user2_id.to_i)).abs }
+      rating_sum = user_common_movies.inject(0) do |sum, movie|
+        sum + (movie.user_rating(user1_id.to_i) - movie.user_rating(user2_id.to_i)).abs
+      end
       max_rating_sum = 4 * user_common_movies.length
       100.0 - (rating_sum.to_f / max_rating_sum.to_f * 100)
     else
@@ -59,7 +61,9 @@ class MovieData
   # tastes of user_id with the most_similar users at the front of the array; excludes users with similarity = 0.0
   def most_similar(user_id, number_of_users = 5)
     if all_users.include?(user_id)
-      similarity_hash = other_users(user_id.to_i).inject({}) { |user_similarity, user| user_similarity.merge({user => similarity(user_id.to_i, user)}) }
+      similarity_hash = other_users(user_id.to_i).inject({}) do |user_similarity, user|
+        user_similarity.merge({user => similarity(user_id.to_i, user)})
+      end
       similarity_hash.reject! { |user, similarity| similarity == 0.0 }
       similarity_hash.sort_by { |user_similarity| user_similarity[1] }.reverse.take(number_of_users).map(&:first)
     else
@@ -80,8 +84,12 @@ class MovieData
   # calculated by averaging the ratings of the user_id's most-similar users (up to 50)
   def predict(user_id, movie_id)
     if all_users.include?(user_id.to_i) && @training_movies.key?(movie_id.to_i)
-      sum_similar_ratings = most_similar(user_id.to_i, 50).inject(0) { |sum, user| sum + @training_movies[movie_id].user_rating(user) }
-      count_similar_ratings = most_similar(user_id.to_i, 50).map { |user| @training_movies[movie_id].user_rated?(user) }.select { |rated| rated }.size
+      sum_similar_ratings = most_similar(user_id.to_i, 50).inject(0) do |sum, user|
+        sum + @training_movies[movie_id].user_rating(user)
+      end
+      count_similar_ratings = most_similar(user_id.to_i, 50).map do |user|
+        @training_movies[movie_id].user_rated?(user).select { |rated| rated }.size
+      end.select { |rated| rated }.size
       return 1.0 if count_similar_ratings == 0 # no similar users have watched the movie
       (sum_similar_ratings / count_similar_ratings).to_f.round(1)
     else
