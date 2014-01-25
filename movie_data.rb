@@ -46,10 +46,10 @@ class MovieData
     100.0 - (rating_sum.to_f / max_rating_sum.to_f * 100.0)
   end
 
-  # returns an array list of the top number_of_users (default = 5) from movie_hash whose tastes are most similar to the tastes of user u
-  # with the most_similar users at the front of the array
-  def most_similar(u, number_of_users = 5, movie_hash = @training_movies)
-    similarity_hash = other_users(u.to_i, movie_hash).inject({}) { |user_similarity, user_id| user_similarity.merge({user_id => similarity(u.to_i, user_id, movie_hash)}) }
+  # returns an array list of the top number_of_users (default = 5) from training_movies whose tastes are most similar to the
+  # tastes of user u with the most_similar users at the front of the array
+  def most_similar(u, number_of_users = 5)
+    similarity_hash = other_users(u.to_i).inject({}) { |user_similarity, user_id| user_similarity.merge({user_id => similarity(u.to_i, user_id)}) }
     similarity_hash.sort_by { |user_similarity| user_similarity[1] }.reverse.take(number_of_users).map(&:first)
   end
 
@@ -102,8 +102,8 @@ class MovieData
     end
   end
 
-  # list of all users except u in movie_hash
-  def other_users(u, movie_hash)
-    movie_hash.values.map(&:user_list).flatten.uniq - [u]
+  # list of all users except u in training_movies
+  def other_users(u)
+    @training_movies.values.map(&:user_list).flatten.uniq - [u]
   end
 end

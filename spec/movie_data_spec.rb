@@ -53,5 +53,42 @@ describe MovieData do
     end
   end
 
-  context "#"
+  context "#similarity" do
+    before do
+      @user_ratings = [[1, 1, 5, 100], [2, 1, 5, 100],
+                       [1, 2, 4, 100], [2, 2, 4, 100],
+                       [3, 1, 5, 100], [4, 1, 1, 100],
+                       [3, 2, 1, 100], [4, 2, 5, 100],
+                       [5, 1, 1, 100], [6, 1, 3, 100],
+                       [5, 2, 5, 100], [6, 2, 3, 100]]
+      allow(File).to receive(:open).and_yield(StringIO.new(@user_ratings.map { |array| array.join("\t") }.join("\n")))
+      @md = MovieData.new("test")
+    end
+
+    it "calculates the similarity between two common users" do
+      expect(@md.similarity(1, 2)).to eq(100)
+    end
+
+    it "calculates the similarity between two uncommon users" do
+      expect(@md.similarity(3, 4)).to eq(0)
+    end
+
+    it "calculates the similarity between two users that are semi-common" do
+      expect(@md.similarity(5, 6)).to eq(50)
+    end
+  end
+
+  context "#most_similar" do
+    before do
+      @user_ratings = [[1, 1, 5, 100], [2, 1, 4, 100], [3, 1, 3, 100], [4, 1, 2, 100]]
+      allow(File).to receive(:open).and_yield(StringIO.new(@user_ratings.map { |array| array.join("\t") }.join("\n")))
+      @md = MovieData.new("test")
+    end
+
+    it "returns an array of the most similar users to a user" do
+      expect(@md.most_similar(1)).to eq([2, 3, 4])
+    end
+  end
+
+  
 end
