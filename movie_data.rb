@@ -1,6 +1,6 @@
 # movie_data.rb
 # Written by: Noranda Brown
-# Version: 2014.1.24
+# Version: 2014.1.25
 
 require 'pathname'
 require './movie'
@@ -13,19 +13,16 @@ class MovieData
   # and folder_name/set_pair.test, creating a @training_movies hash and an optional @test_movies hash of Movie objects
   def initialize(folder_name, set_pair = nil)
     @training_movies = {}
-    @test_movies = {}
+    @test_set_path = nil
     folder_path = Pathname.new(folder_name)
-    if folder_path.directory?
-      if set_pair.nil?
-        training_path = folder_path.join('u.data')
-      else
-        training_path = folder_path.join("#{set_pair}.base")
-        load_data(folder_path.join("#{set_pair}.test"), @test_movies)
-      end
-      load_data(training_path, @training_movies)
+    raise 'Directory does not exist.' unless folder_path.directory?
+    if set_pair.nil?
+      training_path = folder_path.join('u.data')
     else
-      raise 'Directory does not exist.'
+      training_path = folder_path.join("#{set_pair}.base")
+      @test_set_path = folder_path.join("#{set_pair}.test")
     end
+    load_training_data(training_path)
   end
 
   # returns a number (0.0 - 100.0) that indicates the popularity (higher numbers are more popular) of movie_id from training_movies
@@ -101,7 +98,7 @@ class MovieData
     end
   end
 
-  # returns an array of users_ids that have seen movie_id
+  # returns a sorted array of users_ids that have seen movie_id
   def viewers(movie_id)
     if @training_movies.key?(movie_id.to_i)
       @training_movies[movie_id].user_list
@@ -110,30 +107,44 @@ class MovieData
     end
   end
 
-  # runs the z.predict method on the first k ratings in the test set and returns a MovieTest object containing the results.
-  # The parameter k is optional and if omitted, all of the tests will be run.
-  def run_test
-
+  # runs the z.predict method on the first k ratings in the test set and returns a MovieTest object containing the results;
+  # the parameter k is optional and if omitted, all of the tests will be run.
+  def run_test(k = nil)
+    raise 'Test set path not found.' if @test_set_path.nil?
+    movie_test = MovieTest.new
+    load_data(@test_set_path, k) do |user_id, movie_id, rating, timestamp|
+      movie_test << [user_id, movie_id, rating, predict(user_id, movie_id)]
+    end
+    movie_test
   end
 
   private #######################################################################
 
   # reads in data from path and stores movie objects in the movie_hash
-  def load_data(path, movie_hash)
+  def load_data(path, num_lines = nil)
+    count = 0
     File.open(path, 'r') do |file|
       file.each do |line|
         line_array = line.split("\t").map(&:to_i)
         user_id, movie_id, rating, timestamp = line_array
-        movie_hash[movie_id] ||= Movie.new(movie_id)
-        movie_hash[movie_id].add_rating(user_id, rating, timestamp)
+        yield user_id, movie_id, rating, timestamp
+        count += 1
+        break if count == num_lines
       end
     end
   end
 
-  # list of all users in training_movies
-    def all_users
-      @training_movies.values.map(&:user_list).flatten.uniq
+  def load_training_data(training_path)
+    load_data(training_path) do |user_id, movie_id, rating, timestamp|
+      @training_movies[movie_id] ||= Movie.new(movie_id)
+      @training_movies[movie_id].add_rating(user_id, rating, timestamp)
     end
+  end
+
+  # list of all users in training_movies
+  def all_users
+    @training_movies.values.map(&:user_list).flatten.uniq
+  end
 
   # list of all users except u in training_movies
   def other_users(u)

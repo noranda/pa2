@@ -1,6 +1,6 @@
-# movie_data_spec   .rb
+# movie_data_spec.rb
 # Written by: Noranda Brown
-# Version: 2014.1.24
+# Version: 2014.1.25
 
 require 'rspec'
 require './movie_data'
@@ -22,9 +22,8 @@ describe MovieData do
       MovieData.new('test')
     end
 
-    it 'reads both the base and test files when a set pair is passed in' do
+    it 'reads the base file when a set pair is passed in' do
       expect(File).to receive(:open).with(Pathname.new('test/foo.base'), 'r')
-      expect(File).to receive(:open).with(Pathname.new('test/foo.test'), 'r')
       MovieData.new('test', :foo)
     end
 
@@ -169,6 +168,22 @@ describe MovieData do
 
     it 'raises an error if a user does not exist' do
       expect { @md.movies(3) }.to raise_error
+    end
+  end
+
+  context '#viewers' do
+    before do
+      @user_ratings = [[3, 1, 5, 100], [1, 1, 2, 100], [2, 1, 2, 100], [4, 1, 4, 100]]
+      allow(File).to receive(:open).and_yield(StringIO.new(@user_ratings.map { |array| array.join("\t") }.join("\n")))
+      @md = MovieData.new('test')
+    end
+
+    it 'returns a sorted list of users that reviewed the movie' do
+      expect(@md.viewers(1)).to eq([1, 2, 3, 4])
+    end
+
+    it 'returns an empty array if no users have reviewed the movie' do
+      expect(@md.viewers(2)).to eq([])
     end
   end
 end

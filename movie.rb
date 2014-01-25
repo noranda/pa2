@@ -37,8 +37,8 @@ class Movie
     end
   end
 
-  # returns a list of users that reviewed the movie
+  # returns a sorted list of users that reviewed the movie
   def user_list
-    @user_ratings.map(&:user_id)
+    @user_ratings.map(&:user_id).sort
   end
 end
