@@ -400,7 +400,7 @@ popularity (higher numbers are more popular) of <code>movie_id</code></p>
             <pre><span class="ruby-comment"># File movie_database.rb, line 66</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">popularity</span>(<span class="ruby-identifier">movie_id</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-string">&#39;Movie does not exist.&#39;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">movies_include?</span>(<span class="ruby-identifier">movie_id</span>)
-  <span class="ruby-ivar">@movies</span>[<span class="ruby-identifier">movie_id</span>].<span class="ruby-identifier">sum_ratings</span>.<span class="ruby-identifier">to_f</span> <span class="ruby-operator">*</span> <span class="ruby-value">100.0</span> <span class="ruby-operator">/</span> <span class="ruby-identifier">max_sum_ratings</span>.<span class="ruby-identifier">to_f</span>.<span class="ruby-identifier">round</span>(<span class="ruby-value">1</span>) <span class="ruby-comment"># calculates popularity and normalizes</span>
+  <span class="ruby-ivar">@movies</span>[<span class="ruby-identifier">movie_id</span>].<span class="ruby-identifier">sum_ratings</span>.<span class="ruby-identifier">to_f</span>.<span class="ruby-identifier">round</span>(<span class="ruby-value">1</span>) <span class="ruby-operator">*</span> <span class="ruby-value">100.0</span> <span class="ruby-operator">/</span> <span class="ruby-identifier">max_sum_ratings</span>.<span class="ruby-identifier">to_f</span>.<span class="ruby-identifier">round</span>(<span class="ruby-value">1</span>) <span class="ruby-comment"># calculates popularity and normalizes</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
