@@ -186,4 +186,12 @@ describe MovieData do
       expect(@md.viewers(2)).to eq([])
     end
   end
+
+  context '#run_test' do
+    before do
+      @user_ratings = [[3, 1, 5, 100], [1, 1, 2, 100], [2, 1, 2, 100], [4, 1, 4, 100]]
+      allow(File).to receive(:open).and_yield(StringIO.new(@user_ratings.map { |array| array.join("\t") }.join("\n")))
+      @md = MovieData.new('test')
+    end
+  end
 end

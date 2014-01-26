@@ -1,6 +1,6 @@
 # movie.rb
 # Written by: Noranda Brown
-# Version: 2014.1.23
+# Version: 2014.1.25
 
 class Movie
 

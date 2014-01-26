@@ -10,9 +10,11 @@ GEM
     rspec-expectations (2.14.4)
       diff-lcs (>= 1.1.3, < 2.0)
     rspec-mocks (2.14.4)
+    ruby-standard-deviation (2.0.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   rspec
+  ruby-standard-deviation (~> 2.0.0)

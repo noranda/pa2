@@ -2,6 +2,10 @@
 # Written by: Noranda Brown
 # Version: 2014.1.25
 
+require 'rubygems'
+require 'bundler'
+Bundler.require
+
 require 'pathname'
 require './movie'
 require './user_rating'
