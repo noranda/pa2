@@ -40,6 +40,7 @@ class MovieTest
 
   private #######################################################################
 
+  # returns an array of error differences between predicted ratings and actual ratings
   def errors
     @test_results.map { |tuple| (tuple[2] - tuple[3]).abs }
   end
