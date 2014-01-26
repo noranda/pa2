@@ -35,7 +35,7 @@ class MovieSimilarity
   # returns a floating point number between +1.0+ and +5.0+ as an estimate of what +user_id+ would rate +movie_id+
   def predict(user_id, movie_id)
     raise 'User or movie does not exist.' unless @movie_database.users_include?(user_id) && @movie_database.movies_include?(movie_id)
-    similar_users = most_similar(user_id).take(100)
+    similar_users = most_similar_users_who_watched_movie(most_similar(user_id), movie_id)
     sum_ratings = similar_users.inject(0) { |sum, user| sum + @movie_database[movie_id].user_rating(user) }
     count_ratings = similar_users.map { |user| @movie_database[movie_id].user_rated?(user) }.count { |rated| rated }
     return 1.0 if count_ratings == 0 # no similar users have watched the movie
@@ -56,5 +56,11 @@ class MovieSimilarity
     @movie_database.users(user_id).inject({}) do |user_similarity, user|
       user_similarity.merge({user => similarity(user_id, user)})
     end
+  end
+
+  ##
+  # filters a +user_list+ to take the first 100 users who rated +movie_id+
+  def most_similar_users_who_watched_movie(user_list, movie_id)
+    user_list.select { |user| @movie_database[movie_id].user_rated?(user) }.take(100)
   end
 end
