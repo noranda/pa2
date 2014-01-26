@@ -1,6 +1,6 @@
 # user_rating.rb
 # Written by: Noranda Brown
-# Version: 2014.1.23
+# Version: 2014.1.26
 
 class UserRating
 

@@ -1,8 +1,8 @@
 # movie_data_spec.rb
 # Written by: Noranda Brown
-# Version: 2014.1.25
+# Version: 2014.1.26
 
-require 'rspec'
+require 'spec_helper'
 require './movie_data'
 
 describe MovieData do
@@ -202,11 +202,11 @@ describe MovieData do
     end
 
     it 'returns a MovieTest object containing the results of predict on the test set' do
-      expect(@md.run_test.to_a).to eq([[3, 2, 4, 4.0], [5, 1, 3, 2.0]])
+      expect(@md.run_test.to_a).to eq([[3, 2, 4, 4.3], [5, 1, 3, 2.0]])
     end
 
     it 'returns a MovieTest object correctly with a given k' do
-      expect(@md.run_test(1).to_a).to eq([[3, 2, 4, 4.0]])
+      expect(@md.run_test(1).to_a).to eq([[3, 2, 4, 4.3]])
     end
 
     it 'raises an error if @test_set_path is nil' do

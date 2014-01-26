@@ -1,8 +1,8 @@
 # movie_test_spec.rb
 # Written by: Noranda Brown
-# Version: 2014.1.25
+# Version: 2014.1.26
 
-require 'rspec'
+require 'spec_helper'
 require './movie_data'
 
 describe MovieTest do

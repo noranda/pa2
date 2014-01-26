@@ -1,6 +1,6 @@
 # movie.rb
 # Written by: Noranda Brown
-# Version: 2014.1.25
+# Version: 2014.1.26
 
 class Movie
 
@@ -24,8 +24,9 @@ class Movie
   end
 
   # returns true if user_id has rated a movie and false otherwise
-  def user_rated?(user_id)
-    @user_ratings.map(&:user_id).include?(user_id)
+  def user_rated?(*user_ids)
+    users = @user_ratings.map(&:user_id)
+    user_ids.map { |user_id| users.include?(user_id) }.all?
   end
 
   # returns the user rating from user_id for a movie if the movie was rated by the user, else returns 0

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class MovieSimilarity - RDoc Documentation</title>
+
+<link href="./fonts.css" rel="stylesheet">
+<link href="./rdoc.css" rel="stylesheet">
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "./";
+</script>
+
+<script src="./js/jquery.js"></script>
+<script src="./js/navigation.js"></script>
+<script src="./js/search_index.js"></script>
+<script src="./js/search.js"></script>
+<script src="./js/searcher.js"></script>
+<script src="./js/darkfish.js"></script>
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="./index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="./table_of_contents.html#pages">Pages</a>
+    <a href="./table_of_contents.html#classes">Classes</a>
+    <a href="./table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link">Object
+  
+</div>
+
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-new">::new</a>
+    
+    <li ><a href="#method-i-most_similar">#most_similar</a>
+    
+    <li ><a href="#method-i-predict">#predict</a>
+    
+    <li ><a href="#method-i-similarity">#similarity</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-MovieSimilarity">
+  <h1 id="class-MovieSimilarity" class="class">
+    class MovieSimilarity
+  </h1>
+
+  <section class="description">
+    
+<p>movie_similarity.rb Written by: Noranda Brown Version: 2014.1.26</p>
+
+  </section>
+
+  
+  
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Class Methods</h3>
+       </header>
+
+    
+      <div id="method-c-new" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new</span><span
+            class="method-args">(movie_database)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="new-source">
+            <pre><span class="ruby-comment"># File movie_similarity.rb, line 6</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">movie_database</span>)
+  <span class="ruby-ivar">@movie_database</span> = <span class="ruby-identifier">movie_database</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-most_similar" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">most_similar</span><span
+            class="method-args">(user_id)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>returns an array list of the top number of users whose tastes are most
+similar to the tastes of <code>user_id</code> with the most similar users
+at the front of the array; excludes users with similarity = 0.0</p>
+          
+          
+
+          
+          <div class="method-source-code" id="most_similar-source">
+            <pre><span class="ruby-comment"># File movie_similarity.rb, line 27</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">most_similar</span>(<span class="ruby-identifier">user_id</span>)
+  <span class="ruby-keyword">return</span> [] <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@movie_database</span>.<span class="ruby-identifier">users_include?</span>(<span class="ruby-identifier">user_id</span>)
+  <span class="ruby-identifier">sim_hash</span> = <span class="ruby-identifier">similarity_hash</span>(<span class="ruby-identifier">user_id</span>)
+  <span class="ruby-identifier">sim_hash</span>.<span class="ruby-identifier">reject!</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">user</span>, <span class="ruby-identifier">similarity</span><span class="ruby-operator">|</span> <span class="ruby-identifier">similarity</span> <span class="ruby-operator">==</span> <span class="ruby-value">0.0</span> }
+  <span class="ruby-identifier">sim_hash</span>.<span class="ruby-identifier">sort</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span><span class="ruby-operator">|</span> <span class="ruby-identifier">b</span>[<span class="ruby-value">1</span>] <span class="ruby-operator">&lt;=&gt;</span> <span class="ruby-identifier">a</span>[<span class="ruby-value">1</span>] }.<span class="ruby-identifier">map</span>(<span class="ruby-operator">&amp;</span><span class="ruby-value">:first</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-predict" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">predict</span><span
+            class="method-args">(user_id, movie_id)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>returns a floating point number between <code>1.0</code> and
+<code>5.0</code> as an estimate of what <code>user_id</code> would rate
+<code>movie_id</code></p>
+          
+          
+
+          
+          <div class="method-source-code" id="predict-source">
+            <pre><span class="ruby-comment"># File movie_similarity.rb, line 36</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">predict</span>(<span class="ruby-identifier">user_id</span>, <span class="ruby-identifier">movie_id</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-string">&#39;User or movie does not exist.&#39;</span> <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@movie_database</span>.<span class="ruby-identifier">users_include?</span>(<span class="ruby-identifier">user_id</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-ivar">@movie_database</span>.<span class="ruby-identifier">movies_include?</span>(<span class="ruby-identifier">movie_id</span>)
+  <span class="ruby-identifier">similar_users</span> = <span class="ruby-identifier">most_similar</span>(<span class="ruby-identifier">user_id</span>)
+  <span class="ruby-identifier">sum_ratings</span> = <span class="ruby-identifier">similar_users</span>.<span class="ruby-identifier">inject</span>(<span class="ruby-value">0</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">sum</span>, <span class="ruby-identifier">user</span><span class="ruby-operator">|</span> <span class="ruby-identifier">sum</span> <span class="ruby-operator">+</span> <span class="ruby-ivar">@movie_database</span>[<span class="ruby-identifier">movie_id</span>].<span class="ruby-identifier">user_rating</span>(<span class="ruby-identifier">user</span>) }
+  <span class="ruby-identifier">count_ratings</span> = <span class="ruby-identifier">similar_users</span>.<span class="ruby-identifier">map</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">user</span><span class="ruby-operator">|</span> <span class="ruby-ivar">@movie_database</span>[<span class="ruby-identifier">movie_id</span>].<span class="ruby-identifier">user_rated?</span>(<span class="ruby-identifier">user</span>) }.<span class="ruby-identifier">count</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">rated</span><span class="ruby-operator">|</span> <span class="ruby-identifier">rated</span> }
+  <span class="ruby-keyword">return</span> <span class="ruby-value">1.0</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">count_ratings</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span> <span class="ruby-comment"># no similar users have watched the movie</span>
+  (<span class="ruby-identifier">sum_ratings</span>.<span class="ruby-identifier">to_f</span> <span class="ruby-operator">/</span> <span class="ruby-identifier">count_ratings</span>.<span class="ruby-identifier">to_f</span>).<span class="ruby-identifier">round</span>(<span class="ruby-value">1</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-similarity" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">similarity</span><span
+            class="method-args">(user1_id, user2_id)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>generates a number <code>0.0</code> - <code>100.0</code> which indicates
+the similarity in movie preference between <code>user1_id</code> and
+<code>user2_id</code> (higher numbers indicate greater similarity)</p>
+          
+          
+
+          
+          <div class="method-source-code" id="similarity-source">
+            <pre><span class="ruby-comment"># File movie_similarity.rb, line 13</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">similarity</span>(<span class="ruby-identifier">user1_id</span>, <span class="ruby-identifier">user2_id</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-string">&#39;At least one user specified does not exist.&#39;</span> <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@movie_database</span>.<span class="ruby-identifier">users_include?</span>(<span class="ruby-identifier">user1_id</span>, <span class="ruby-identifier">user2_id</span>)
+  <span class="ruby-identifier">user_common_movies</span> = <span class="ruby-ivar">@movie_database</span>.<span class="ruby-identifier">movies_in_common</span>(<span class="ruby-identifier">user1_id</span>, <span class="ruby-identifier">user2_id</span>)
+
+  <span class="ruby-keyword">return</span> <span class="ruby-value">0.0</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">user_common_movies</span>.<span class="ruby-identifier">empty?</span> <span class="ruby-comment"># most common case</span>
+
+  <span class="ruby-identifier">rating_sum</span> = <span class="ruby-identifier">user_common_movies</span>.<span class="ruby-identifier">inject</span>(<span class="ruby-value">0</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">sum</span>, <span class="ruby-identifier">movie</span><span class="ruby-operator">|</span> <span class="ruby-identifier">sum</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">user_rating_difference</span>(<span class="ruby-identifier">movie</span>, <span class="ruby-identifier">user1_id</span>, <span class="ruby-identifier">user2_id</span>) }
+  <span class="ruby-identifier">max_rating_sum</span> = <span class="ruby-value">4</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">user_common_movies</span>.<span class="ruby-identifier">length</span>
+  <span class="ruby-value">100.0</span> <span class="ruby-operator">-</span> (<span class="ruby-identifier">rating_sum</span>.<span class="ruby-identifier">to_f</span> <span class="ruby-operator">/</span> <span class="ruby-identifier">max_rating_sum</span>.<span class="ruby-identifier">to_f</span> <span class="ruby-operator">*</span> <span class="ruby-value">100.0</span>).<span class="ruby-identifier">round</span>(<span class="ruby-value">1</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="http://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="http://rdoc.rubyforge.org">RDoc</a> 4.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+
