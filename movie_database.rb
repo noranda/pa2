@@ -65,7 +65,8 @@ class MovieDatabase
   # returns a number +0.0+ - +100.0+ that indicates the popularity (higher numbers are more popular) of +movie_id+
   def popularity(movie_id)
     raise 'Movie does not exist.' unless movies_include?(movie_id)
-    @movies[movie_id].sum_ratings.to_f.round(1) * 100.0 / max_sum_ratings.to_f.round(1) # calculates popularity and normalizes
+    result = @movies[movie_id].sum_ratings * 100.0 / max_sum_ratings.to_f # calculates popularity and normalizes
+    result.round(1)
   end
 
   ##
