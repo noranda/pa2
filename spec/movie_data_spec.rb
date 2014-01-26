@@ -189,9 +189,30 @@ describe MovieData do
 
   context '#run_test' do
     before do
-      @user_ratings = [[3, 1, 5, 100], [1, 1, 2, 100], [2, 1, 2, 100], [4, 1, 4, 100]]
-      allow(File).to receive(:open).and_yield(StringIO.new(@user_ratings.map { |array| array.join("\t") }.join("\n")))
-      @md = MovieData.new('test')
+      @training_ratings = [[3, 1, 5, 100], [1, 1, 2, 100], [2, 1, 2, 100], [4, 1, 4, 100],
+                           [1, 2, 3, 100], [4, 2, 5, 100], [5, 2, 1, 100], [2, 2, 5, 100]]
+      @test_ratings = [[3, 2, 4, 100], [5, 1, 3, 100]]
+      allow(File).to receive(:open).with(Pathname.new('test/foo.base'), 'r').and_yield(StringIO.new(@training_ratings.map { |array| array.join("\t") }.join("\n")))
+      allow(File).to receive(:open).with(Pathname.new('test/foo.test'), 'r').and_yield(StringIO.new(@test_ratings.map { |array| array.join("\t") }.join("\n")))
+      @md = MovieData.new('test', :foo)
+    end
+
+    it 'returns a MovieTest object' do
+      expect(@md.run_test).to be_a(MovieTest)
+    end
+
+    it 'returns a MovieTest object containing the results of predict on the test set' do
+      expect(@md.run_test.to_a).to eq([[3, 2, 4, 4.0], [5, 1, 3, 2.0]])
+    end
+
+    it 'returns a MovieTest object correctly with a given k' do
+      expect(@md.run_test(1).to_a).to eq([[3, 2, 4, 4.0]])
+    end
+
+    it 'raises an error if @test_set_path is nil' do
+      allow(File).to receive(:open).and_yield(StringIO.new(""))
+      md2 = MovieData.new('test')
+      expect { md2.run_test }.to raise_error
     end
   end
 end
