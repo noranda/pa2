@@ -37,7 +37,7 @@ class MovieSimilarity
     raise 'User or movie does not exist.' unless @movie_database.users_include?(user_id) && @movie_database.movies_include?(movie_id)
     similar_users = most_similar_users_who_watched_movie(most_similar(user_id), movie_id)
     sum_ratings = similar_users.inject(0) { |sum, user| sum + @movie_database[movie_id].user_rating(user) }
-    count_ratings = similar_users.map { |user| @movie_database[movie_id].user_rated?(user) }.count { |rated| rated }
+    count_ratings = similar_users.count { |rated| rated }
     return 1.0 if count_ratings == 0 # no similar users have watched the movie
     (sum_ratings.to_f / count_ratings.to_f).round(1)
   end
