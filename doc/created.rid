@@ -1,13 +1,14 @@
-Sun, 26 Jan 2014 18:54:55 -0500
+Sun, 26 Jan 2014 21:33:03 -0500
 ./Gemfile	Sat, 25 Jan 2014 19:47:39 -0500
 ./Gemfile.lock	Sat, 25 Jan 2014 19:48:02 -0500
 ./movie.rb	Sun, 26 Jan 2014 15:45:49 -0500
 ./movie_data.rb	Sun, 26 Jan 2014 15:42:09 -0500
 ./movie_database.rb	Sun, 26 Jan 2014 18:53:59 -0500
-./movie_similarity.rb	Sun, 26 Jan 2014 18:22:06 -0500
+./movie_similarity.rb	Sun, 26 Jan 2014 21:28:54 -0500
 ./movie_test.rb	Sun, 26 Jan 2014 15:45:33 -0500
 ./README.md	Sun, 26 Jan 2014 15:57:01 -0500
 ./spec/movie_data_spec.rb	Sun, 26 Jan 2014 15:45:28 -0500
 ./spec/movie_test_spec.rb	Sun, 26 Jan 2014 15:45:41 -0500
 ./spec/spec_helper.rb	Sun, 26 Jan 2014 11:15:33 -0500
+./transcript.md	Sun, 26 Jan 2014 21:11:12 -0500
 ./user_rating.rb	Sun, 26 Jan 2014 15:46:09 -0500
