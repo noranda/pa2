@@ -35,14 +35,13 @@ class MovieSimilarity
   # returns a floating point number between +1.0+ and +5.0+ as an estimate of what +user_id+ would rate +movie_id+
   def predict(user_id, movie_id)
     raise 'User or movie does not exist.' unless @movie_database.users_include?(user_id) && @movie_database.movies_include?(movie_id)
-    similar_users = most_similar_users_who_watched_movie(most_similar(user_id), movie_id)
-    sum_ratings = similar_users.inject(0) { |sum, user| sum + @movie_database[movie_id].user_rating(user) }
-    count_ratings = similar_users.count { |rated| rated }
-    return 1.0 if count_ratings == 0 # no similar users have watched the movie
-    (sum_ratings.to_f / count_ratings.to_f).round(1)
+    products, weights = predict_product_weights(movie_id, user_id)
+    return 1.0 unless weights > 0
+    result = products / weights
+    result.round(1)
   end
 
-  private
+  private ########################################################################
 
   ##
   # returns the absolute value of the difference between ratings of +movie+ by +user1_id+ and +user2_id+
@@ -58,9 +57,15 @@ class MovieSimilarity
     end
   end
 
-  ##
-  # filters a +user_list+ to take the first 100 users who rated +movie_id+
-  def most_similar_users_who_watched_movie(user_list, movie_id)
-    user_list.select { |user| @movie_database[movie_id].user_rated?(user) }.take(100)
+  def predict_product_weights(movie_id, user_id)
+    products = 0.0
+    weights = 0.0
+    @movie_database[movie_id].user_list.each do |user|
+      next if user == user_id # don't count the users own rating
+      sim = similarity(user_id, user)
+      products += @movie_database[movie_id].user_rating(user) * sim
+      weights += sim
+    end
+    return products, weights
   end
 end

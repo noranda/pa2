@@ -147,7 +147,7 @@ describe MovieData do
     end
 
     it 'predicts the rating a user would give a movie he/she has not seen' do
-      expect(@md.predict(1, 2)).to eq(4.0)
+      expect(@md.predict(1, 2)).to eq(3.8)
     end
 
     it 'returns 1.0 if the user has no similar users that have seen the movie' do
@@ -202,11 +202,11 @@ describe MovieData do
     end
 
     it 'returns a MovieTest object containing the results of predict on the test set' do
-      expect(@md.run_test.to_a).to eq([[3, 2, 4, 4.3], [5, 1, 3, 2.0]])
+      expect(@md.run_test.to_a).to eq([[3, 2, 4, 4.6], [5, 1, 3, 2.0]])
     end
 
     it 'returns a MovieTest object correctly with a given k' do
-      expect(@md.run_test(1).to_a).to eq([[3, 2, 4, 4.3]])
+      expect(@md.run_test(1).to_a).to eq([[3, 2, 4, 4.6]])
     end
 
     it 'raises an error if @test_set_path is nil' do
