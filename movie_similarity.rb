@@ -36,7 +36,7 @@ class MovieSimilarity
   def predict(user_id, movie_id)
     raise 'User or movie does not exist.' unless @movie_database.users_include?(user_id) && @movie_database.movies_include?(movie_id)
     products, weights = predict_product_weights(movie_id, user_id)
-    return 1.0 unless weights > 0
+    return 3.0 unless weights > 0
     result = products / weights
     result.round(1)
   end
