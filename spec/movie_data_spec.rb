@@ -150,8 +150,8 @@ describe MovieData do
       expect(@md.predict(1, 2)).to eq(3.8)
     end
 
-    it 'returns 1.0 if the user has no similar users that have seen the movie' do
-      expect(@md.predict(1, 3)).to eq(1.0)
+    it 'returns 3.0 if the user has no similar users that have seen the movie' do
+      expect(@md.predict(1, 3)).to eq(3.0)
     end
   end
 
